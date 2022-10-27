@@ -1,6 +1,7 @@
 use macroquad::prelude::*;
 
 const PLAYER_SIZE: Vec2 = Vec2::from_array([150.0, 40.0]);
+const PLAYER_SPEED: f32 = 700.0;
 
 struct Player {
     rect: Rect,
@@ -22,15 +23,24 @@ impl Player {
         draw_rectangle(self.rect.x, self.rect.y, self.rect.w, self.rect.h, BLUE)
     }
 
+    //movement
     pub fn update(&mut self, dt: f32) {
-        let mut x_move: f32 = 0.0;
+        let mut x_move = match (is_key_down(KeyCode::Left), is_key_down(KeyCode::Right)) {
+            (true, false) => -1.0,
+            (false, true) => 1.0,
+            _ => 0.0,
+        };
 
-        if is_key_down(KeyCode::Left) {
-            x_move -= 1.0;
+        self.rect.x += x_move * dt * PLAYER_SPEED;
+
+        if self.rect.x < 0.0 {
+            self.rect.x = 0.0;
         }
-        if is_key_down(KeyCode::Right) {
-            x_move += 1.0;
+        if self.rect.x > screen_width() - self.rect.w {
+            self.rect.x = screen_width() - self.rect.w;
         }
+
+
     }
 }
 
@@ -38,13 +48,15 @@ impl Player {
 async fn main() {
 
     //PLAYER
-    let player = Player::new();
+    let mut player = Player::new();
 
     loop {
+        //frame time
+        player.update(get_frame_time());
         clear_background(WHITE);
 
         player.draw();
-        player.update(dt)
+        
 
         next_frame().await
     }
