@@ -2,6 +2,7 @@ use macroquad::prelude::*;
 
 const PLAYER_SIZE: Vec2 = Vec2::from_array([150.0, 40.0]);
 const PLAYER_SPEED: f32 = 700.0;
+const BLOCK_SIZE: Vec2 = Vec2::from_array([150.0, 40.0]);
 
 struct Player {
     rect: Rect,
@@ -44,11 +45,32 @@ impl Player {
     }
 }
 
+struct Block {
+    rect: Rect,
+}
+
+impl Block {
+    pub fn new(pos: Vec2) -> Self {
+        Self {
+            rect: Rect::new(pos.x, pos.y, BLOCK_SIZE.x, BLOCK_SIZE.y)
+        }
+    }
+    pub fn draw(&self){
+        draw_rectangle(self.rect.x, self.rect.y, self.rect.w, self.rect.h, BLUE)
+    }
+}
+
+
 #[macroquad::main("breakout")]
 async fn main() {
 
     //PLAYER
     let mut player = Player::new();
+    //BLOCKS
+    let mut blocks = Vec::new();
+
+    let (blocks_number_x, blocks_number_y) = (6, 6);
+    let board_start_pos = vec2((screen_width() - (BLOCK_SIZE.x * blocks_number_x as f32)) * 0.5, 50.0);
 
     loop {
         //frame time
