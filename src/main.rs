@@ -61,7 +61,18 @@ impl Ball {
     }
 
     pub fn update(&mut self, dt: f32){
-        
+        self.rect.x += self.vel.x * dt * BALL_SPEED; //update x coord of ball
+        self.rect.y += self.vel.y * dt * BALL_SPEED; //update y coord of ball
+        //collision with windows borders
+        if self.rect.x < 0.0 {
+            self.vel.x = 1.0;
+        }
+        if self.rect.x > screen_width() - self.rect.w {
+            self.vel.x = -1.0;
+        }
+        if self.rect.y < 0.0 {
+            self.vel.y = 1.0;
+        }
     }
 
     pub fn draw(&self) {
@@ -92,6 +103,8 @@ async fn main() {
     let mut player = Player::new();
     //BLOCKS
     let mut blocks = Vec::new();
+    //BALLS
+    let mut balls = Vec::new();
 
     let (width, height) = (6, 6);
     let padding = 5.0;
@@ -103,14 +116,25 @@ async fn main() {
         blocks.push(Block::new(board_start_pos + vec2(block_x, block_y)))
     }
 
+    balls.push(Ball::new(vec2(screen_width() * 0.5, screen_height() * 0.5)));
+
     loop {
+        if is_key_pressed(KeyCode::Space) {
+            balls.push(Ball::new(vec2(screen_width() * 0.5, screen_height() * 0.5)));
+        }
         //frame time
         player.update(get_frame_time());
+        for ball in balls.iter_mut() {
+            ball.update(get_frame_time());
+        }
         clear_background(WHITE);
 
         player.draw();
         for block in blocks.iter() {
             block.draw();
+        }
+        for ball in balls.iter() {
+            ball.draw();
         }
 
         // board_start_pos = vec2((screen_width() - (total_block_size.x * width as f32)) * 0.5, 50.0);
