@@ -99,11 +99,29 @@ impl Block {
 
 
 fn resolve_collision(a: &mut Rect, vel: &mut Vec2, b: &Rect) -> bool {
-    if let Some(_intersection) = a.intersect(*b) {
-        vel.y *= -1.0;
-        return true;
+    //early exit
+    let intersection = match a.intersect(*b){
+        Some(intersection) => intersection,
+        None => return false,
+    };
+
+    let a_center = a.center();
+    let b_center = b.center();
+    let to = b_center - a_center;
+    let to_signum = to.signum();
+    match intersection.w > intersection.h {
+        true => {
+            //y
+            a.y -= to_signum.y * intersection.h;
+            vel.y = -to_signum.y * vel.y.abs();
+        }
+        false => {
+            //x
+            a.x -= to_signum.x * intersection.w;
+            vel.x = -to_signum.x * vel.x.abs();
+        }
     }
-    false
+    true
 }
 
 #[macroquad::main("breakout")]
@@ -140,8 +158,10 @@ async fn main() {
         for ball in balls.iter_mut() {
             resolve_collision(&mut ball.rect, & mut ball.vel, &mut player.rect);
             for block in blocks.iter_mut() {
-                if resolve_collision(& mut ball.rect, &mut ball.vel, &block.rect) {}
-                block.lives -= 1;
+                println!("{}", resolve_collision(& mut ball.rect, &mut ball.vel, &block.rect));
+                if resolve_collision(& mut ball.rect, &mut ball.vel, &block.rect) {
+                    block.lives -= 1;  
+                }
             }
         }
 
