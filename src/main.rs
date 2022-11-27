@@ -130,6 +130,10 @@ fn resolve_collision(a: &mut Rect, vel: &mut Vec2, b: &Rect) -> bool {
 
 #[macroquad::main("breakout")]
 async fn main() {
+    let font = load_ttf_font("res/Roboto-Medium.ttf").await.unwrap();
+
+    let mut score = 0;
+    let mut player_lives = 3;
 
     //PLAYER
     let mut player = Player::new();
@@ -164,9 +168,20 @@ async fn main() {
             for block in blocks.iter_mut() {
                 // println!("{}", resolve_collision(& mut ball.rect, &mut ball.vel, &block.rect));
                 if resolve_collision(& mut ball.rect, &mut ball.vel, &block.rect) {
-                    block.lives -= 1;  
+                    block.lives -= 1;
+                    if block.lives <= 0 {
+                        score += 10;  
+                    }
                 }
             }
+        }
+
+        //remove balls
+        let balls_len = balls.len();
+        balls.retain(|ball| ball.rect.y < screen_height());
+        let removed_balls = balls_len - balls.len();
+        if removed_balls > 0 {
+            player_lives -= 1;
         }
 
         //remove block if lives = 0
@@ -183,9 +198,22 @@ async fn main() {
             ball.draw();
         }
 
-        // board_start_pos = vec2((screen_width() - (total_block_size.x * width as f32)) * 0.5, 50.0);
-        
-        // println!("{}", board_start_pos);
+        let score_text = format!("score: {}", score);
+        let score_text_dim = measure_text(&score_text, Some(font), 30u16, 1.0);
+
+        draw_text_ex(
+            &score_text,
+            screen_width() * 0.5 - score_text_dim.width*0.5,
+            40.0,
+            TextParams { font, font_size: 30u16, font_scale: 1.0, font_scale_aspect: 1.0, color: BLACK }
+        );
+
+        draw_text_ex(
+            &format!("lives: {}", player_lives),
+            30.0,
+            40.0,
+            TextParams { font, font_size: 30u16, font_scale: 1.0, font_scale_aspect: 1.0, color: BLACK }
+        );
 
         next_frame().await
     }
