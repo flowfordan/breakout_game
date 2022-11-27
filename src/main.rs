@@ -89,11 +89,15 @@ impl Block {
     pub fn new(pos: Vec2) -> Self {
         Self {
             rect: Rect::new(pos.x, pos.y, BLOCK_SIZE.x, BLOCK_SIZE.y),
-            lives: 1,
+            lives: 2,
         }
     }
     pub fn draw(&self){
-        draw_rectangle(self.rect.x, self.rect.y, self.rect.w, self.rect.h, BLUE)
+        let color = match self.lives {
+            2 => RED,
+            _ => ORANGE,
+        };
+        draw_rectangle(self.rect.x, self.rect.y, self.rect.w, self.rect.h, color)
     }
 }
 
@@ -158,7 +162,7 @@ async fn main() {
         for ball in balls.iter_mut() {
             resolve_collision(&mut ball.rect, & mut ball.vel, &mut player.rect);
             for block in blocks.iter_mut() {
-                println!("{}", resolve_collision(& mut ball.rect, &mut ball.vel, &block.rect));
+                // println!("{}", resolve_collision(& mut ball.rect, &mut ball.vel, &block.rect));
                 if resolve_collision(& mut ball.rect, &mut ball.vel, &block.rect) {
                     block.lives -= 1;  
                 }
