@@ -1,105 +1,11 @@
 use macroquad::prelude::*;
 
-const PLAYER_SIZE: Vec2 = Vec2::from_array([150.0, 40.0]);
-const PLAYER_SPEED: f32 = 700.0;
+mod objects;
+use crate::objects::player::Player;
+use crate::objects::block::Block;
+use crate::objects::ball::Ball;
+
 const BLOCK_SIZE: Vec2 = Vec2::from_array([100.0, 40.0]);
-const BALL_SIZE: f32 = 50.0;
-const BALL_SPEED: f32 = 400.0;
-
-struct Player {
-    rect: Rect,
-}
-
-impl Player {
-    pub fn new() -> Self {
-        Self {
-            rect: Rect::new(
-                screen_width() * 0.5 - PLAYER_SIZE.x*0.5,
-                screen_height() - 100.0,
-                PLAYER_SIZE.x,
-                PLAYER_SIZE.y
-            )
-        }
-    }
-
-    pub fn draw(&self) {
-        draw_rectangle(self.rect.x, self.rect.y, self.rect.w, self.rect.h, BLUE)
-    }
-
-    //movement
-    pub fn update(&mut self, dt: f32) {
-        let mut x_move = match (is_key_down(KeyCode::Left), is_key_down(KeyCode::Right)) {
-            (true, false) => -1.0,
-            (false, true) => 1.0,
-            _ => 0.0,
-        };
-
-        self.rect.x += x_move * dt * PLAYER_SPEED;
-
-        if self.rect.x < 0.0 {
-            self.rect.x = 0.0;
-        }
-        if self.rect.x > screen_width() - self.rect.w {
-            self.rect.x = screen_width() - self.rect.w;
-        }
-
-
-    }
-}
-
-pub struct Ball {
-    rect: Rect,
-    vel: Vec2,
-}
-
-impl Ball {
-    pub fn new(pos: Vec2) -> Self {
-        Self {
-            rect: Rect::new(pos.x, pos.y, BALL_SIZE, BALL_SIZE),
-            vel: vec2(rand::gen_range(-1f32, 1f32), 1f32).normalize(),
-        }
-    }
-
-    pub fn update(&mut self, dt: f32){
-        self.rect.x += self.vel.x * dt * BALL_SPEED; //update x coord of ball
-        self.rect.y += self.vel.y * dt * BALL_SPEED; //update y coord of ball
-        //collision with windows borders
-        if self.rect.x < 0.0 {
-            self.vel.x = 1.0;
-        }
-        if self.rect.x > screen_width() - self.rect.w {
-            self.vel.x = -1.0;
-        }
-        if self.rect.y < 0.0 {
-            self.vel.y = 1.0;
-        }
-    }
-
-    pub fn draw(&self) {
-        draw_rectangle(self.rect.x, self.rect.y, self.rect.w, self.rect.h, DARKGRAY);
-    }
-}
-
-struct Block {
-    rect: Rect,
-    lives: i32,
-}
-
-impl Block {
-    pub fn new(pos: Vec2) -> Self {
-        Self {
-            rect: Rect::new(pos.x, pos.y, BLOCK_SIZE.x, BLOCK_SIZE.y),
-            lives: 2,
-        }
-    }
-    pub fn draw(&self){
-        let color = match self.lives {
-            2 => RED,
-            _ => ORANGE,
-        };
-        draw_rectangle(self.rect.x, self.rect.y, self.rect.w, self.rect.h, color)
-    }
-}
 
 
 fn resolve_collision(a: &mut Rect, vel: &mut Vec2, b: &Rect) -> bool {
@@ -218,6 +124,3 @@ async fn main() {
         next_frame().await
     }
 }
-
-//Player::new vs player.draw
-//(&self)
