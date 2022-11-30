@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-const BALL_SIZE: f32 = 50.0;
+pub const BALL_SIZE: f32 = 50.0;
 const BALL_SPEED: f32 = 400.0;
 
 pub struct Ball {
